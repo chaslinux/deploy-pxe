@@ -15,13 +15,14 @@
 # 09/09/2022
 # This script is NOT finished. It's just a start
 
-
+echo "Updating the system before adding software..."
 sudo apt update && sudo apt upgrade -y
 
 # Install syslinux for non-UEFI and UEFI, plus tftpd
 # We don't install a DHCP server since we're using our router
 # for dhcp
-sudo apt install syslinux-common syslinux-efi tftpd-hpa pxelinux
+echo "Installing syslinux-common, syslinux-efi, tftpd-hpa, pxelinux, and apache2"
+sudo apt install syslinux-common syslinux-efi tftpd-hpa pxelinux apache2 -y
 
 cd /srv/tftp
 sudo cp /usr/lib/syslinux/modules/efi32/ldlinux.e32 /srv/tftp
