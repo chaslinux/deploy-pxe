@@ -81,7 +81,7 @@ echo "	INITRD lubuntu/jammy/desktop/initrd" >> default
 echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/lubuntu/jammy/desktop/lubuntu-22.04.1-desktop-amd64.iso" >> default
 echo "	TEXT HELP" >> default
 echo "		The Lubuntu 22.04 Desktop Live Image" >> default
-echo "	ENDTEXT" default
+echo "	ENDTEXT" >> default
 
 echo "LABEL Gparted 1.4.0 (Disk Partitioning)" >> default
 echo "	MENU LABEL Garted (Disk Partitioning)" >> default
@@ -89,7 +89,7 @@ echo "	KERNEL gparted/vmlinuz" >> default
 echo "	APPEND INITRD=gparted/initrd.img boot=live config components union=overlay username=user noswap noeject vga=788 fetch=http://$HOSTNAME/gparted/gparted-live-1.4.0-5-amd64.iso" >> default
 echo "	TEXT HELP" >> default
 echo "		Gparted (Disk Paritioning) Live Image" >> default
-echo "	ENDTEXT" default
+echo "	ENDTEXT" >> default
 sudo cp $STARTINGDIR/default /srv/tftp/pxelinux.cfg/default
 
 # make the distribution directories
