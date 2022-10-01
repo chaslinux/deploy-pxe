@@ -14,6 +14,7 @@
 
 # 09/21/2022
 # This script is NOT finished. It's just a start
+STARTINGDIR=$(pwd)
 
 echo "Updating the system before adding software..."
 sudo apt update && sudo apt upgrade -y
@@ -34,47 +35,18 @@ sudo cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp
 
 echo "Make the pxelinux.cfg directory and set up default file structure..."
 sudo mkdir -p /srv/tftp/pxelinux.cfg
-sudo touch /srv/tftp/pxelinux.cfg/default
-#sudo echo "default menu.c32" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "MENU TITLE Main Menu" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "LABEL Desktop Linux" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "		MENU LABEL Desktop Linux" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "		KERNEL menu.c32" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "		APPEND pxelinux.cfg/desktop_linux" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "LABEL Linux Servers" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "		MENU LABEL Linux Servers" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "		KERNEL menu.c32" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "		APPEND pxelinux.cfg/linux_servers" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "LABEL Tools" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "		MENU LABEL Tools" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "		KERNEL menu.c32" > /srv/tftp/pxelinux.cfg/default
-#sudo echo "		APPEND pxelinux.cfg/tools" > /srv/tftp/pxelinux.cfg/default
+sudo cp $STARTINGDIR/default /srv/tftp/pxelinux.cfg/default
+# sudo touch /srv/tftp/pxelinux.cfg/default
 
-#echo "Making the pxelinux.cfg/desktop_linux menu..."
-#sudo touch /srv/tftp/pxelinux.cfg/desktop_linux
-#sudo echo "MENU TITLE Desktop Linux" > /srv/tftp/pxelinux.cfg/desktop_linux
-#sudo echo "LABEL Main Menu" > /srv/tftp/pxelinux.cfg/desktop_linux
-#sudo echo "		MENU LABEL Main Menu" > /srv/tftp/pxelinux.cfg/desktop_linux
-#sudo echo "		KERNEL menu.c32" > /srv/tftp/pxelinux.cfg/desktop_linux
-#sudo echo "		APPEND pxelinux.cfg/default" > /srv/tftp/pxelinux.cfg/desktop_linux
-#sudo echo "LABEL Debian Netinstall" > /srv/tftp/pxelinux.cfg/desktop_linux
-#sudo echo "		MENU LABEL Debian Netinstall" > /srv/tftp/pxelinux.cfg/desktop_linux
-#sudo echo "		KERNEL debian/bullseye/vmlinuz" > /srv/tftp/pxelinux.cfg/desktop_linux
-#sudo echo "		INITRD debian/bullseye/initrd.gz" > /srv/tftp/pxelinux.cfg/desktop_linux
-# sudo echo "" > /srv/tftp/pxelinux.cfg/desktop_linux
-# sudo echo "" > /srv/tftp/pxelinux.cfg/desktop_linux
-# sudo echo "" > /srv/tftp/pxelinux.cfg/desktop_linux
-# sudo echo "" > /srv/tftp/pxelinux.cfg/desktop_linux
-# sudo echo "" > /srv/tftp/pxelinux.cfg/desktop_linux
-# sudo echo "" > /srv/tftp/pxelinux.cfg/desktop_linux
 
 
 # make the distribution directories
-echo "Make directories to hold Debian, Ubuntu server/desktop, Xubuntu desktop, and Fedora server/desktop..."
-#sudo mkdir -p /srv/tftp/debian/bullseye
+echo "Make directories to hold Ubuntu server/desktop, and Xubuntu desktop"
 sudo mkdir -p /srv/tftp/ubuntu/jammy/{server,desktop}
 sudo mkdir -p /srv/tftp/xubuntu/jammy/desktop
-#sudo mkdir -p /srv/tftp/fedora/36/{server,desktop}
+sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
+sudo mkdir -p /var/www/xubuntu/jammy/desktop
+
 
 
 # change to the current user home directory
@@ -86,7 +58,7 @@ wget https://releases.ubuntu.com/22.04.1/ubuntu-22.04.1-live-server-amd64.iso
 echo "Mounting Ubuntu Server image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
 sudo mount ubuntu-22.04.1-live-server-amd64.iso /mnt
 sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/server
-sudo mv ubuntu-22.04.1-live-server-amd64.iso /srv/tftp/ubuntu/jammy/server
+sudo mv ubuntu-22.04.1-live-server-amd64.iso /var/www/ubuntu/jammy/server
 sudo umount /mnt
 
 # get Ubuntu Desktop
@@ -97,19 +69,9 @@ wget https://releases.ubuntu.com/22.04.1/ubuntu-22.04.1-desktop-amd64.iso
 echo "Mounting Ubuntu Desktop image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
 sudo mount ubuntu-22.04.1-desktop-amd64.iso /mnt
 sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/desktop
-sudo mv ubuntu-22.04.1-desktop-amd64.iso /srv/tftp/ubuntu/jammy/desktop
+sudo mv ubuntu-22.04.1-desktop-amd64.iso /var/www/ubuntu/jammy/desktop
 sudo umount /mnt
 
-# get debian
-#echo "Downloading the Debian 11.4.0 netinstall image"
-#wget https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-11.4.0-amd64-netinst.iso
-
-# set up debian directory structure
-#echo "Mounting Debian image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-#sudo mount debian-11.4.0-amd64-netinst.iso /mnt
-#sudo cp /mnt/install.amd/{initrd.gz,vmlinuz} /srv/tftp/debian/bullseye
-#sudo mv debian-11.4.0-amd64-netinst.iso /srv/tftp/debian/bullseye
-#sudo umount /mnt
 
 # get xubuntu (desktop) - note Canadian mirror
 echo "Downloading the Xubuntu 22.04 desktop image from Canada, eh..."
@@ -119,8 +81,15 @@ wget http://mirror.csclub.uwaterloo.ca/xubuntu-releases/22.04/release/xubuntu-22
 echo "Mounting Xubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
 sudo mount xubuntu-22.04.1-desktop-amd64.iso /mnt
 sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/xubuntu/jammy/desktop
-sudo mv xubuntu-22.04.1-desktop-amd64.iso /srv/tftp/xubuntu/jammy/desktop
+sudo mv xubuntu-22.04.1-desktop-amd64.iso /var/www/xubuntu/jammy/desktop
 sudo umount /mnt
+
+# Disable the old apache config file and use the pxe-server.conf file
+sudo a2dissite 000-default.conf
+sudo systemctl restart apache2
+sudo cp $STARTINGDIR/pxe-server.conf /etc/apache/sites-available
+sudo a2ensite pxe-server.conf
+sudo systemctl restart apache2
 
 # get fedora (GNOME)
 #echo "Downloading the Fedora Desktop 36-1.5 image..."
