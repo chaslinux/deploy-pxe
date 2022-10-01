@@ -7,8 +7,8 @@
 # notes for pfsense: 
 # 	add the IP address for tftp server in the Next Server field
 #		Default BIOS filename: pxelinux.0
-# 	UEFI 32 bit filename: ldlinux.e32
-#		UEFI 64 bit filename: ldlinux.e64
+# 	UEFI 32 bit filename: syslinux.efi
+#		UEFI 64 bit filename: syslinux.efi
 
 ### *** IMPORTANT *** ###
 
