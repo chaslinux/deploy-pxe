@@ -10,12 +10,25 @@
 # 	UEFI 32 bit filename: syslinux.efi
 #		UEFI 64 bit filename: syslinux.efi
 
-### *** IMPORTANT *** ###
+# Note: I am not a programmer, nor a server admin. I just wrote this script to automate
+# deployment of a simple PXE server.
 
-# 09/21/2022
-# This script is NOT finished. It's just a start
+# I believe most of this (pxelinux.cfg/default) is old, as there's a lot of references to
+# setting up grub instead. This just worked for me. I'm happy to add better contributions.
+
+#
+
+### *** IMPORTANT *** ###
+# This script is is a work in progress
+# It's meant to be run on a freshly installed Ubuntu server, and it will overwrite pxelinux.cfg/default
+
 STARTINGDIR=$(pwd)
 HOSTNAME=$(cat /etc/hostname)
+UBUNTUDESKTOP=ubuntu-22.04.1-desktop-amd64.iso
+UBUNTUSERVER=ubuntu-22.04.1-live-server-amd64.iso
+XUBUNTU=xubuntu-22.04.1-desktop-amd64.iso
+KUBUNTU=kubuntu-22.04.1-desktop-amd64.iso
+LUBUNTU=lubuntu-22.04.1-desktop-amd64.iso
 
 echo "Updating the system before adding software..."
 sudo apt update && sudo apt upgrade -y
@@ -42,7 +55,7 @@ echo "LABEL Ubuntu Jammy 22.04 Desktop" >> default
 echo "	MENU LABEL Ubuntu Desktop" >> default
 echo "	KERNEL ubuntu/jammy/desktop/vmlinuz" >> default
 echo "	INITRD ubuntu/jammy/desktop/initrd" >> default
-echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/ubuntu/jammy/desktop/ubuntu-22.04.1-desktop-amd64.iso" >> default
+echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/ubuntu/jammy/desktop/$UBUNTUDESKTOP" >> default
 echo "	TEXT HELP" >> default
 echo "		The Ubuntu 22.04 Desktop Live Image" >> default
 echo "	ENDTEXT" >> default
@@ -51,7 +64,7 @@ echo "LABEL Ubuntu Jammy 22.04 Server" >> default
 echo "	MENU LABEL Ubuntu Server" >> default
 echo "	KERNEL ubuntu/jammy/server/vmlinuz" >> default
 echo "	INITRD ubuntu/jammy/server/initrd" >> default
-echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/ubuntu/jammy/server/ubuntu-22.04.1-live-server-amd64.iso" >> default
+echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/ubuntu/jammy/server/$UBUNTUSERVER" >> default
 echo "	TEXT HELP" >> default
 echo "		The Ubuntu 22.04 Server Live Image" >> default
 echo "	ENDTEXT" >> default
@@ -60,7 +73,7 @@ echo "LABEL Xubuntu Jammy 22.04 Desktop" >> default
 echo "	MENU LABEL Xubuntu Desktop" >> default
 echo "	KERNEL xubuntu/jammy/desktop/vmlinuz" >> default
 echo "	INITRD xubuntu/jammy/desktop/initrd" >> default
-echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/xubuntu/jammy/desktop/xubuntu-22.04.1-desktop-amd64.iso" >> default
+echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/xubuntu/jammy/desktop/$XUBUNTU" >> default
 echo "	TEXT HELP" >> default
 echo "		The Xubuntu 22.04 Desktop Live Image" >> default
 echo "	ENDTEXT" >> default
@@ -69,7 +82,7 @@ echo "LABEL Kubuntu Jammy 22.04 Desktop" >> default
 echo "	MENU LABEL Kubuntu Desktop" >> default
 echo "	KERNEL kubuntu/jammy/desktop/vmlinuz" >> default
 echo "	INITRD kubuntu/jammy/desktop/initrd" >> default
-echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/kubuntu/jammy/desktop/kubuntu-22.04.1-desktop-amd64.iso" >> default
+echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/kubuntu/jammy/desktop/$KUBUNTU" >> default
 echo "	TEXT HELP" >> default
 echo "		The Kubuntu 22.04 Desktop Live Image" >> default
 echo "	ENDTEXT" >> default
@@ -78,18 +91,20 @@ echo "LABEL Lubuntu Jammy 22.04 Desktop" >> default
 echo "	MENU LABEL Lubuntu Desktop" >> default
 echo "	KERNEL lubuntu/jammy/desktop/vmlinuz" >> default
 echo "	INITRD lubuntu/jammy/desktop/initrd" >> default
-echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/lubuntu/jammy/desktop/lubuntu-22.04.1-desktop-amd64.iso" >> default
+echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/lubuntu/jammy/desktop/$LUBUNTU" >> default
 echo "	TEXT HELP" >> default
 echo "		The Lubuntu 22.04 Desktop Live Image" >> default
 echo "	ENDTEXT" >> default
 
-echo "LABEL Gparted 1.4.0 (Disk Partitioning)" >> default
-echo "	MENU LABEL Garted (Disk Partitioning)" >> default
-echo "	KERNEL gparted/vmlinuz" >> default
-echo "	APPEND INITRD=gparted/initrd.img boot=live config components union=overlay username=user noswap noeject vga=788 fetch=http://$HOSTNAME/gparted/gparted-live-1.4.0-5-amd64.iso" >> default
-echo "	TEXT HELP" >> default
-echo "		Gparted (Disk Paritioning) Live Image" >> default
-echo "	ENDTEXT" >> default
+# This is commented out because it doesn't seem to currently work
+#echo "LABEL Gparted 1.4.0 (Disk Partitioning)" >> default
+#echo "	MENU LABEL Garted (Disk Partitioning)" >> default
+#echo "	KERNEL gparted/vmlinuz" >> default
+#echo "	APPEND INITRD=gparted/initrd.img boot=live config components union=overlay username=user noswap noeject vga=788 fetch=http://$HOSTNAME/gparted/gparted-live-1.4.0-5-amd64.iso" >> default
+#echo "	TEXT HELP" >> default
+#echo "		Gparted (Disk Paritioning) Live Image" >> default
+#echo "	ENDTEXT" >> default
+
 sudo cp $STARTINGDIR/default /srv/tftp/pxelinux.cfg/default
 
 # make the distribution directories
@@ -108,69 +123,71 @@ sudo mkdir -p /var/www/gparted
 # change to the current user home directory
 echo "Downloading Ubuntu Server 22.04..."
 cd ~
-wget https://releases.ubuntu.com/22.04.1/ubuntu-22.04.1-live-server-amd64.iso
+wget https://releases.ubuntu.com/22.04.1/$UBUNTUSERVER
 
 # set up Ubuntu server software directory structure
 echo "Mounting Ubuntu Server image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount ubuntu-22.04.1-live-server-amd64.iso /mnt
+sudo mount $UBUNTUSERVER /mnt
 sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/server
-sudo mv ubuntu-22.04.1-live-server-amd64.iso /var/www/ubuntu/jammy/server
+sudo mv $UBUNTUSERVER /var/www/ubuntu/jammy/server
 sudo umount /mnt
 
 # get Ubuntu Desktop
 echo "Downloading Ubuntu 22.04 desktop..."
-wget https://releases.ubuntu.com/22.04.1/ubuntu-22.04.1-desktop-amd64.iso
+wget https://releases.ubuntu.com/22.04.1/$UBUNTUDESKTOP
 
 # set up Ubuntu desktop directory structure
 echo "Mounting Ubuntu Desktop image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount ubuntu-22.04.1-desktop-amd64.iso /mnt
+sudo mount $UBUNTUDESKTOP /mnt
 sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/desktop
-sudo mv ubuntu-22.04.1-desktop-amd64.iso /var/www/ubuntu/jammy/desktop
+sudo mv $UBUNTUDESKTOP /var/www/ubuntu/jammy/desktop
 sudo umount /mnt
 
 # get Xubuntu (desktop) - note Canadian mirror
 echo "Downloading the Xubuntu 22.04 desktop image from Canada, eh..."
-wget http://mirror.csclub.uwaterloo.ca/xubuntu-releases/22.04/release/xubuntu-22.04.1-desktop-amd64.iso
+wget http://mirror.csclub.uwaterloo.ca/xubuntu-releases/22.04/release/$XUBUNTU
 
 # set up the Xubuntu directory structure
 echo "Mounting Xubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount xubuntu-22.04.1-desktop-amd64.iso /mnt
+sudo mount $XUBUNTU /mnt
 sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/xubuntu/jammy/desktop
-sudo mv xubuntu-22.04.1-desktop-amd64.iso /var/www/xubuntu/jammy/desktop
+sudo mv $XUBUNTU /var/www/xubuntu/jammy/desktop
 sudo umount /mnt
 
 # get Kubuntu (desktop) 
 echo "Downloading Kubuntu 22.04 Desktop image"
-wget https://cdimage.ubuntu.com/kubuntu/releases/22.04.1/release/kubuntu-22.04.1-desktop-amd64.iso
+wget https://cdimage.ubuntu.com/kubuntu/releases/22.04.1/release/$KUBUNTU
 
 # set up the Kubuntu directory structure
 echo "Mounting Kubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount kubuntu-22.04.1-desktop-amd64.iso /mnt
+sudo mount $KUBUNTU /mnt
 sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/kubuntu/jammy/desktop
-sudo mv kubuntu-22.04.1-desktop-amd64.iso /var/www/kubuntu/jammy/desktop
+sudo mv $KUBUNTU /var/www/kubuntu/jammy/desktop
 sudo umount /mnt
 
 # get Lubuntu (desktop)
 echo "Downloading Lubuntu 22.04 Desktop image"
-wget https://cdimage.ubuntu.com/lubuntu/releases/22.04.1/release/lubuntu-22.04.1-desktop-amd64.iso
+wget https://cdimage.ubuntu.com/lubuntu/releases/22.04.1/release/$LUBUNTU
 
 # set up the Lubuntu directory structure
 echo "Mounting Lubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount lubuntu-22.04.1-desktop-amd64.iso /mnt
+sudo mount $LUBUNTU /mnt
 sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/lubuntu/jammy/desktop
-sudo mv lubuntu-22.04.1-desktop-amd64.iso /var/www/lubuntu/jammy/desktop
+sudo mv $LUBUNTU /var/www/lubuntu/jammy/desktop
 sudo umount /mnt
 
+# Commented out because Gparted currently doesn't seem to work.
 # get Gparted live tools
-echo "Downloading Gparted 1.4.0 live"
-wget https://downloads.sourceforge.net/gparted/gparted-live-1.4.0-5-amd64.iso
+#echo "Downloading Gparted 1.4.0 live"
+#wget https://downloads.sourceforge.net/gparted/gparted-live-1.4.0-5-amd64.iso
 
 # set up the gparted directory structure
-echo "Mounting gparted image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount gparted-live-1.4.0-5-amd64.iso /mnt
-sudo cp /mnt/live/{initrd.img,vmlinuz} /srv/tftp/gparted
-sudo mv gparted-live-1.4.0-5-amd64.iso /var/www/gparted
-sudo umount /mnt
+#echo "Mounting gparted image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
+#sudo mount gparted-live-1.4.0-5-amd64.iso /mnt
+#sudo cp /mnt/live/{initrd.img,vmlinuz} /srv/tftp/gparted
+#sudo mv gparted-live-1.4.0-5-amd64.iso /var/www/gparted
+#sudo umount /mnt
+
 
 # Disable the old apache config file and use the pxe-server.conf file
 sudo a2dissite 000-default.conf
