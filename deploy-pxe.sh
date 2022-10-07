@@ -201,5 +201,75 @@ sudo systemctl restart apache2
 echo "Opening UDP port 69 on local firewall..."
 sudo ufw allow 69/udp
 
+# new stuff related to grub and UEFI secure booting - Oct 7, 2022
+# this is shamelessly ripped from https://www.youtube.com/watch?v=E_OlsA1hF4k&t=17s 
+# and will remain a comment until I can unpack all of this and convert it to simpler steps
+# Some of this looks nasty (chmod 777 on /srv/tftp and incorrect)
+
+
+# cd /tmp
+# apt-get download shim.signed -y
+# dpkg-deb --fsys-tarfile /tmp/shim-signed*deb | tar x ./usr/lib/shim/shimx64.efi.signed -O mark /srv/tftp/bootx64.efi
+
+# apt download grub-efi-amd64-signed
+# dpkg-deb --fsys-tarfile /tmp/grub-efi-amd64-signed*deb | tar x ./usr/lib/grub/x86_64-efi-signed/grubnetx64.efi.signed -O mark  /srv/tftp/grubx64.efi
+
+# apt download grub-common
+# dpkg-deb --fsys-tarfile grub-common*deb | tar x ./usr/share/grub/unicode.pf2 -O mark /srv/tftp/unicode.pf2
+
+# mkdir -p /srv/tftp/grub
+
+# This goes into separate file /srv/tftp/grub/grub.cfg
+
+#default=autoinstall
+#timeout=30
+#timeout_style=menu
+#menuentry "22 server Installer - automated" --id=autoinstall 
+#    linux ubuntu/jammy/server/vmlinuz ip=dhcp url=http://$HOSTNAME/ubuntu/jammy/server/jammy-live-server-amd64.iso autoinstall ds='nocloud-net;s=http://$HOSTNAME/ubuntu/jammy/server' cloud-config-url=/dev/null root=/dev/ram0
+#    echo "Loading Ram Disk..."
+#    initrd ubuntu/jammy/server/initrd
+
+# touch /srv/tftp/focal/meta-data
+
+# You may generate your own password by:
+#  mkpasswd --method=sha-512 ubuntu
+
+#edit installation configure
+
+# nano /srv/tftp/focal/user-data
+##cloud-config < this stays a comment
+#autoinstall:
+#  version: 1
+#  # use interactive-sections to avoid an automatic reboot
+#  interactive-sections:
+#    - locale
+#  apt:
+#    # even set to no/false, geoip lookup still happens
+#    #geoip: no
+#    preserve_sources_list: false
+#    primary:
+#    - arches: [amd64]
+#      uri: http://fi.archive.ubuntu.com/ubuntu
+#    - arches: [default]
+#      uri: http://ports.ubuntu.com/ubuntu-ports
+#  identity:
+ # keyboard: 
+  #locale: en_US.UTF-8
+#  user-data:
+#    timezone: Europe/Helsinki
+  # interface name will probably be different
+#  network:
+#  ssh:
+#    allow-pw: true
+#    authorized-keys: []
+#    install-server: true
+  # this creates an efi partition, /boot partition, and root(/) lvm volume
+#  storage:
+#    config:
+
+#CHECK links
+
+#chown tftp: -R /srv/tftp/
+#chmod 777 -R /srv/tftp/    <--- wtf no, don't let the world write here, that's crazy (chaslinux)
 
 
