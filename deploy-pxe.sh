@@ -153,7 +153,7 @@ echo "        linux   ubuntu/jammy/server/vmlinuz ip=dhcp cloud-config-url=/dev/
 echo "        initrd  ubuntu/jammy/server/initrd" >> grub.cfg
 echo "}" >> grub.cfg
 # copy the grub.conf to the correct directory
-sudo cp $STARTINGDIR/grub.cfg /srf/tftp/grub
+sudo cp $STARTINGDIR/grub.cfg /srv/tftp/grub
 
 # set up user-data file
 echo "#cloud-config" > user-data
