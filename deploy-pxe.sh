@@ -52,13 +52,14 @@ sudo chown -R tftp:tftp /srv/tftp
 # make the distribution directories
 echo "Make directories to hold Ubuntu server/desktop, and Xubuntu desktop"
 sudo mkdir -p /srv/tftp/ubuntu/jammy/{server,desktop}
-sudo mkdir -p /srv/tftp/xubuntu/jammy/desktop
-sudo mkdir -p /srv/tftp/kubuntu/jammy/desktop
-sudo mkdir -p /srv/tftp/lubuntu/jammy/desktop
-sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
-sudo mkdir -p /var/www/xubuntu/jammy/desktop
-sudo mkdir -p /var/www/kubuntu/jammy/desktop
-sudo mkdir -p /var/www/lubuntu/jammy/desktop
+
+# sudo mkdir -p /srv/tftp/xubuntu/jammy/desktop
+# sudo mkdir -p /srv/tftp/kubuntu/jammy/desktop
+# sudo mkdir -p /srv/tftp/lubuntu/jammy/desktop
+# sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
+# sudo mkdir -p /var/www/xubuntu/jammy/desktop
+# sudo mkdir -p /var/www/kubuntu/jammy/desktop
+# sudo mkdir -p /var/www/lubuntu/jammy/desktop
 
 # change to the current user home directory
 echo "Downloading Ubuntu Server 22.04..."
@@ -78,10 +79,10 @@ sudo cp /mnt/boot/grub/x86_64-efi/{command.lst,crypto.lst,fs.lst,terminal.lst} /
 sudo mv $UBUNTUSERVER /var/www/ubuntu/jammy/server
 sudo umount /mnt
 
-sudo cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/syslinux/bios
-sudo cp /usr/lib/syslinux/modules/bios/libutil.c32 /srv/tftp/syslinux/bios
-sudo cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftp/syslinux/bios
-sudo cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftp/syslinux/bios
+sudo cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/boot/syslinux/bios
+sudo cp /usr/lib/syslinux/modules/bios/libutil.c32 /srv/tftp/boot/syslinux/bios
+sudo cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftp/boot/syslinux/bios
+sudo cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftp/boot/syslinux/bios
 
 # sudo cp /usr/lib/syslinux/modules/efi64/{ldlinux.e64,libutil.c32,menu.c32} /srv/tftp
 # sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp
@@ -90,15 +91,15 @@ sudo cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp
 echo "Make the pxelinux.cfg directory and set up default file structure..."
 sudo mkdir -p /srv/tftp/pxelinux.cfg
 cd $STARTINGDIR
-echo "UI menu.c32" > default
-echo "LABEL Ubuntu Jammy 22.04 Desktop" >> default
-echo "	MENU LABEL Ubuntu Desktop" >> default
-echo "	KERNEL ubuntu/jammy/desktop/vmlinuz" >> default
-echo "	INITRD ubuntu/jammy/desktop/initrd" >> default
-echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/ubuntu/jammy/desktop/$UBUNTUDESKTOP" >> default
-echo "	TEXT HELP" >> default
-echo "		The Ubuntu 22.04 Desktop Live Image" >> default
-echo "	ENDTEXT" >> default
+echo "UI boot/syslinux/bios/menu.c32" > default
+# echo "LABEL Ubuntu Jammy 22.04 Desktop" >> default
+# echo "	MENU LABEL Ubuntu Desktop" >> default
+# echo "	KERNEL ubuntu/jammy/desktop/vmlinuz" >> default
+# echo "	INITRD ubuntu/jammy/desktop/initrd" >> default
+# echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/ubuntu/jammy/desktop/$UBUNTUDESKTOP" >> default
+# echo "	TEXT HELP" >> default
+# echo "		The Ubuntu 22.04 Desktop Live Image" >> default
+# echo "	ENDTEXT" >> default
 
 echo "LABEL Ubuntu Jammy 22.04 Server" >> default
 echo "	MENU LABEL Ubuntu Server" >> default
@@ -110,32 +111,32 @@ echo "	TEXT HELP" >> default
 echo "		The Ubuntu 22.04 Server Live Image" >> default
 echo "	ENDTEXT" >> default
 
-echo "LABEL Xubuntu Jammy 22.04 Desktop" >> default
-echo "	MENU LABEL Xubuntu Desktop" >> default
-echo "	KERNEL xubuntu/jammy/desktop/vmlinuz" >> default
-echo "	INITRD xubuntu/jammy/desktop/initrd" >> default
-echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/xubuntu/jammy/desktop/$XUBUNTU" >> default
-echo "	TEXT HELP" >> default
-echo "		The Xubuntu 22.04 Desktop Live Image" >> default
-echo "	ENDTEXT" >> default
+# echo "LABEL Xubuntu Jammy 22.04 Desktop" >> default
+# echo "	MENU LABEL Xubuntu Desktop" >> default
+# echo "	KERNEL xubuntu/jammy/desktop/vmlinuz" >> default
+# echo "	INITRD xubuntu/jammy/desktop/initrd" >> default
+# echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/xubuntu/jammy/desktop/$XUBUNTU" >> default
+# echo "	TEXT HELP" >> default
+# echo "		The Xubuntu 22.04 Desktop Live Image" >> default
+# echo "	ENDTEXT" >> default
 
-echo "LABEL Kubuntu Jammy 22.04 Desktop" >> default
-echo "	MENU LABEL Kubuntu Desktop" >> default
-echo "	KERNEL kubuntu/jammy/desktop/vmlinuz" >> default
-echo "	INITRD kubuntu/jammy/desktop/initrd" >> default
-echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/kubuntu/jammy/desktop/$KUBUNTU" >> default
-echo "	TEXT HELP" >> default
-echo "		The Kubuntu 22.04 Desktop Live Image" >> default
-echo "	ENDTEXT" >> default
+# echo "LABEL Kubuntu Jammy 22.04 Desktop" >> default
+# echo "	MENU LABEL Kubuntu Desktop" >> default
+# echo "	KERNEL kubuntu/jammy/desktop/vmlinuz" >> default
+# echo "	INITRD kubuntu/jammy/desktop/initrd" >> default
+# echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/kubuntu/jammy/desktop/$KUBUNTU" >> default
+# echo "	TEXT HELP" >> default
+# echo "		The Kubuntu 22.04 Desktop Live Image" >> default
+# echo "	ENDTEXT" >> default
 
-echo "LABEL Lubuntu Jammy 22.04 Desktop" >> default
-echo "	MENU LABEL Lubuntu Desktop" >> default
-echo "	KERNEL lubuntu/jammy/desktop/vmlinuz" >> default
-echo "	INITRD lubuntu/jammy/desktop/initrd" >> default
-echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/lubuntu/jammy/desktop/$LUBUNTU" >> default
-echo "	TEXT HELP" >> default
-echo "		The Lubuntu 22.04 Desktop Live Image" >> default
-echo "	ENDTEXT" >> default
+# echo "LABEL Lubuntu Jammy 22.04 Desktop" >> default
+# echo "	MENU LABEL Lubuntu Desktop" >> default
+# echo "	KERNEL lubuntu/jammy/desktop/vmlinuz" >> default
+# echo "	INITRD lubuntu/jammy/desktop/initrd" >> default
+# echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/lubuntu/jammy/desktop/$LUBUNTU" >> default
+# echo "	TEXT HELP" >> default
+# echo "		The Lubuntu 22.04 Desktop Live Image" >> default
+# echo "	ENDTEXT" >> default
 
 sudo cp $STARTINGDIR/default /srv/tftp/pxelinux.cfg/default
 
@@ -171,61 +172,48 @@ sudo cp {user-data,meta-data} /var/www/ubuntu/jammy/server
 
 
 # get Ubuntu Desktop
-echo "Downloading Ubuntu 22.04 desktop..."
-wget https://releases.ubuntu.com/22.04.1/$UBUNTUDESKTOP
+# echo "Downloading Ubuntu 22.04 desktop..."
+# wget https://releases.ubuntu.com/22.04.1/$UBUNTUDESKTOP
 
 # set up Ubuntu desktop directory structure
-echo "Mounting Ubuntu Desktop image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount $UBUNTUDESKTOP /mnt
-sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/desktop
-sudo mv $UBUNTUDESKTOP /var/www/ubuntu/jammy/desktop
-sudo umount /mnt
+# echo "Mounting Ubuntu Desktop image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
+# sudo mount $UBUNTUDESKTOP /mnt
+# sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/desktop
+# sudo mv $UBUNTUDESKTOP /var/www/ubuntu/jammy/desktop
+# sudo umount /mnt
 
 # get Xubuntu (desktop) - note Canadian mirror
-echo "Downloading the Xubuntu 22.04 desktop image from Canada, eh..."
-wget http://mirror.csclub.uwaterloo.ca/xubuntu-releases/22.04/release/$XUBUNTU
+# echo "Downloading the Xubuntu 22.04 desktop image from Canada, eh..."
+# wget http://mirror.csclub.uwaterloo.ca/xubuntu-releases/22.04/release/$XUBUNTU
 
 # set up the Xubuntu directory structure
-echo "Mounting Xubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount $XUBUNTU /mnt
-sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/xubuntu/jammy/desktop
-sudo mv $XUBUNTU /var/www/xubuntu/jammy/desktop
-sudo umount /mnt
+# echo "Mounting Xubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
+# sudo mount $XUBUNTU /mnt
+# sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/xubuntu/jammy/desktop
+# sudo mv $XUBUNTU /var/www/xubuntu/jammy/desktop
+# sudo umount /mnt
 
 # get Kubuntu (desktop) 
-echo "Downloading Kubuntu 22.04 Desktop image"
-wget https://cdimage.ubuntu.com/kubuntu/releases/22.04.1/release/$KUBUNTU
+# echo "Downloading Kubuntu 22.04 Desktop image"
+# wget https://cdimage.ubuntu.com/kubuntu/releases/22.04.1/release/$KUBUNTU
 
 # set up the Kubuntu directory structure
-echo "Mounting Kubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount $KUBUNTU /mnt
-sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/kubuntu/jammy/desktop
-sudo mv $KUBUNTU /var/www/kubuntu/jammy/desktop
-sudo umount /mnt
+# echo "Mounting Kubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
+# sudo mount $KUBUNTU /mnt
+# sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/kubuntu/jammy/desktop
+# sudo mv $KUBUNTU /var/www/kubuntu/jammy/desktop
+# sudo umount /mnt
 
 # get Lubuntu (desktop)
-echo "Downloading Lubuntu 22.04 Desktop image"
-wget https://cdimage.ubuntu.com/lubuntu/releases/22.04.1/release/$LUBUNTU
+# echo "Downloading Lubuntu 22.04 Desktop image"
+# wget https://cdimage.ubuntu.com/lubuntu/releases/22.04.1/release/$LUBUNTU
 
 # set up the Lubuntu directory structure
-echo "Mounting Lubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount $LUBUNTU /mnt
-sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/lubuntu/jammy/desktop
-sudo mv $LUBUNTU /var/www/lubuntu/jammy/desktop
-sudo umount /mnt
-
-# Commented out because Gparted currently doesn't seem to work.
-# get Gparted live tools
-#echo "Downloading Gparted 1.4.0 live"
-#wget https://downloads.sourceforge.net/gparted/gparted-live-1.4.0-5-amd64.iso
-
-# set up the gparted directory structure
-#echo "Mounting gparted image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-#sudo mount gparted-live-1.4.0-5-amd64.iso /mnt
-#sudo cp /mnt/live/{initrd.img,vmlinuz} /srv/tftp/gparted
-#sudo mv gparted-live-1.4.0-5-amd64.iso /var/www/gparted
-#sudo umount /mnt
-
+# echo "Mounting Lubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
+# sudo mount $LUBUNTU /mnt
+# sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/lubuntu/jammy/desktop
+# sudo mv $LUBUNTU /var/www/lubuntu/jammy/desktop
+# sudo umount /mnt
 
 # Disable the old apache config file and use the pxe-server.conf file
 sudo a2dissite 000-default.conf
