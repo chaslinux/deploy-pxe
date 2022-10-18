@@ -4,11 +4,17 @@
 #
 # by Chaslinux, chaslinux@ gmail.com
 
+### 10/18/2022 - DON'T EXPECT THIS SCRIPT TO WORK - I'm experimenting!!! ###
+### *** IMPORTANT *** ###
+# This script is is a work in progress
+# It's meant to be run on a freshly installed Ubuntu server, and it will overwrite pxelinux.cfg/default
+
+
 # notes for pfsense: 
 # 	add the IP address for tftp server in the Next Server field
 #		Default BIOS filename: pxelinux.0
-# 	UEFI 32 bit filename: syslinux.efi
-#		UEFI 64 bit filename: syslinux.efi
+# 	
+#		UEFI 64 bit filename: boot/bootx64.efi
 
 # Note: I am not a programmer, nor a server admin. I just wrote this script to automate
 # deployment of a simple PXE server.
@@ -18,9 +24,6 @@
 
 #
 
-### *** IMPORTANT *** ###
-# This script is is a work in progress
-# It's meant to be run on a freshly installed Ubuntu server, and it will overwrite pxelinux.cfg/default
 
 STARTINGDIR=$(pwd)
 HOSTNAME=$(cat /etc/hostname)
@@ -41,10 +44,47 @@ sudo apt install syslinux-common syslinux-efi tftpd-hpa pxelinux apache2 -y
 
 echo "Copying syslinux and pxelinux files into the appropriate directories..."
 cd /srv/tftp
-sudo chown tftp:tftp /srv/tftp
-sudo cp /usr/lib/syslinux/modules/efi32/ldlinux.e32 /srv/tftp
-sudo cp /usr/lib/syslinux/modules/efi64/{ldlinux.e64,libutil.c32,menu.c32} /srv/tftp
-sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp
+sudo mkdir -p /srv/tftp/boot/grub
+sudo mkdir -p /srv/tftp/boot/grub/x86_64-efi
+sudo mkdir -p /srv/tftp/boot/syslinux/bios
+sudo chown -R tftp:tftp /srv/tftp
+
+# make the distribution directories
+echo "Make directories to hold Ubuntu server/desktop, and Xubuntu desktop"
+sudo mkdir -p /srv/tftp/ubuntu/jammy/{server,desktop}
+sudo mkdir -p /srv/tftp/xubuntu/jammy/desktop
+sudo mkdir -p /srv/tftp/kubuntu/jammy/desktop
+sudo mkdir -p /srv/tftp/lubuntu/jammy/desktop
+sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
+sudo mkdir -p /var/www/xubuntu/jammy/desktop
+sudo mkdir -p /var/www/kubuntu/jammy/desktop
+sudo mkdir -p /var/www/lubuntu/jammy/desktop
+
+# change to the current user home directory
+echo "Downloading Ubuntu Server 22.04..."
+cd ~
+wget https://releases.ubuntu.com/22.04.1/$UBUNTUSERVER
+
+# set up Ubuntu server software directory structure
+echo "Mounting Ubuntu Server image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
+sudo mount $UBUNTUSERVER /mnt
+sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/server
+sudo cp /mnt/EFI/boot/bootx64.efi /srv/tftp/boot
+sudo cp /mnt/EFI/boot/grubx64.efi /srv/tftp/boot
+sudo cp /mnt/boot/grub/fonts/unicode.pf2 /srv/tftp/boot/grub/font.pf2
+# sudo cp /mnt/boot/grub/grub.cfg /srv/tftp/boot/grub - disabled because we'll make our own later
+sudo cp /mnt/boot/grub/x86_64-efi/{command.lst,crypto.lst,fs.lst,terminal.lst} /srv/tftp/boot/grub/x86_64-efi
+
+sudo mv $UBUNTUSERVER /var/www/ubuntu/jammy/server
+sudo umount /mnt
+
+sudo cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/syslinux/bios
+sudo cp /usr/lib/syslinux/modules/bios/libutil.c32 /srv/tftp/syslinux/bios
+sudo cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftp/syslinux/bios
+sudo cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftp/syslinux/bios
+
+# sudo cp /usr/lib/syslinux/modules/efi64/{ldlinux.e64,libutil.c32,menu.c32} /srv/tftp
+# sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp
 sudo cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp
 
 echo "Make the pxelinux.cfg directory and set up default file structure..."
@@ -64,7 +104,8 @@ echo "LABEL Ubuntu Jammy 22.04 Server" >> default
 echo "	MENU LABEL Ubuntu Server" >> default
 echo "	KERNEL ubuntu/jammy/server/vmlinuz" >> default
 echo "	INITRD ubuntu/jammy/server/initrd" >> default
-echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/ubuntu/jammy/server/$UBUNTUSERVER" >> default
+# echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/ubuntu/jammy/server/$UBUNTUSERVER" >> default
+echo "  APPEND ip=dhcp cloud-config-url=/dev/null url=http://$HOSTNAME/ubuntu/jammy/server/ubuntu-22.04.1-live-server-amd64.iso autoinstall ds=nocloud-net;s=http://$HOSTNAME/ubuntu/jammy/server/" >> default
 echo "	TEXT HELP" >> default
 echo "		The Ubuntu 22.04 Server Live Image" >> default
 echo "	ENDTEXT" >> default
@@ -96,41 +137,38 @@ echo "	TEXT HELP" >> default
 echo "		The Lubuntu 22.04 Desktop Live Image" >> default
 echo "	ENDTEXT" >> default
 
-# This is commented out because it doesn't seem to currently work
-#echo "LABEL Gparted 1.4.0 (Disk Partitioning)" >> default
-#echo "	MENU LABEL Garted (Disk Partitioning)" >> default
-#echo "	KERNEL gparted/vmlinuz" >> default
-#echo "	APPEND INITRD=gparted/initrd.img boot=live config components union=overlay username=user noswap noeject vga=788 fetch=http://$HOSTNAME/gparted/gparted-live-1.4.0-5-amd64.iso" >> default
-#echo "	TEXT HELP" >> default
-#echo "		Gparted (Disk Paritioning) Live Image" >> default
-#echo "	ENDTEXT" >> default
-
 sudo cp $STARTINGDIR/default /srv/tftp/pxelinux.cfg/default
 
-# make the distribution directories
-echo "Make directories to hold Ubuntu server/desktop, and Xubuntu desktop"
-sudo mkdir -p /srv/tftp/ubuntu/jammy/{server,desktop}
-sudo mkdir -p /srv/tftp/xubuntu/jammy/desktop
-sudo mkdir -p /srv/tftp/kubuntu/jammy/desktop
-sudo mkdir -p /srv/tftp/lubuntu/jammy/desktop
-sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
-sudo mkdir -p /var/www/xubuntu/jammy/desktop
-sudo mkdir -p /var/www/kubuntu/jammy/desktop
-sudo mkdir -p /var/www/lubuntu/jammy/desktop
-sudo mkdir -p /srv/tftp/gparted
-sudo mkdir -p /var/www/gparted
+# Set up a simple grub.cfg right now just for Ubuntu Server installs
+echo "set timeout=30" > grub.cfg
 
-# change to the current user home directory
-echo "Downloading Ubuntu Server 22.04..."
-cd ~
-wget https://releases.ubuntu.com/22.04.1/$UBUNTUSERVER
+echo "loadfont unicode" >> grub.cfg
 
-# set up Ubuntu server software directory structure
-echo "Mounting Ubuntu Server image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount $UBUNTUSERVER /mnt
-sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/server
-sudo mv $UBUNTUSERVER /var/www/ubuntu/jammy/server
-sudo umount /mnt
+echo "set menu_color_normal=white/black" >> grub.cfg
+echo "set menu_color_highlight=black/light-gray" >> grub.cfg
+
+echo "menuentry \"Install Ubuntu Jammy (22.04)\" {" >> grub.cfg
+echo "        set gfxpayload=keep" >> grub.cfg
+echo "        linux   ubuntu/jammy/server/vmlinuz ip=dhcp cloud-config-url=/dev/null url=http://$HOSTNAME/ubuntu/jammy/server/ubuntu-22.04.1-live-server-amd64.iso autoinstall ds=\"nocloud-net;s=http://$HOSTNAME/ubuntu/jammy/server\"" >> grub.cfg
+echo "        initrd  ubuntu/jammy/server/initrd" >> grub.cfg
+echo "}" >> grub.cfg
+# copy the grub.conf to the correct directory
+sudo cp $STARTINGDIR/grub.cfg /srf/tftp/grub
+
+# set up user-data file
+echo "#cloud-config" > user-data
+echo "autoinstall:" >> user-data
+echo "  identity:" >> user-data
+echo "    hostname: jammy-minimal" >> user-data
+# note this password should be ubuntu, but may not work as I had a different result running mkpasswd --method=sha-512 ubuntu
+echo "    password: \$6\$gnqbMUzHhQzpDEw.$.cCNVVDsDfj5Feebh.5O4VbOmib7tyjmeI2ZsFP7VK2kWwgJFbfjvXo3chpeAqCgXWVIW9oNQ/Ag85PR0IsKD/" >> user-data
+echo "    username: ubuntu" >> user-data
+echo "  version: 1" >> user-data
+# set up meta-data
+touch meta-data
+sudo cp {user-data,meta-data} /var/www/ubuntu/jammy/server
+
+
 
 # get Ubuntu Desktop
 echo "Downloading Ubuntu 22.04 desktop..."
