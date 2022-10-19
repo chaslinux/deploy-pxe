@@ -65,10 +65,8 @@ sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
 # change to the current user home directory
 echo "Downloading Ubuntu Server 22.04..."
 cd ~
-if [! -f $UBUNTUSERVER]; then
+wget https://releases.ubuntu.com/22.04.1/$UBUNTUSERVER
 
-	wget https://releases.ubuntu.com/22.04.1/$UBUNTUSERVER
-fi
 
 # set up Ubuntu server software directory structure
 echo "Mounting Ubuntu Server image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
