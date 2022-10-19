@@ -45,8 +45,7 @@ sudo apt install syslinux-common syslinux-efi tftpd-hpa pxelinux apache2 -y
 
 echo "Copying syslinux and pxelinux files into the appropriate directories..."
 cd /srv/tftp
-sudo mkdir -p /srv/tftp/boot/grub
-sudo mkdir -p /srv/tftp/boot/grub/x86_64-efi
+sudo mkdir -p /srv/tftp/grub/x86_64-efi
 sudo mkdir -p /srv/tftp/boot/syslinux/bios
 sudo chown -R tftp:tftp /srv/tftp
 
@@ -66,25 +65,28 @@ sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
 # change to the current user home directory
 echo "Downloading Ubuntu Server 22.04..."
 cd ~
-wget https://releases.ubuntu.com/22.04.1/$UBUNTUSERVER
+if [! -f $UBUNTUSERVER]; then
+
+	wget https://releases.ubuntu.com/22.04.1/$UBUNTUSERVER
+fi
 
 # set up Ubuntu server software directory structure
 echo "Mounting Ubuntu Server image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
 sudo mount $UBUNTUSERVER /mnt
 sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/server
-sudo cp /mnt/EFI/boot/bootx64.efi /srv/tftp/boot
-sudo cp /mnt/EFI/boot/grubx64.efi /srv/tftp/boot
-sudo cp /mnt/boot/grub/fonts/unicode.pf2 /srv/tftp/boot/grub/font.pf2
+sudo cp /mnt/EFI/boot/bootx64.efi /srv/tftp/
+sudo cp /mnt/EFI/boot/grubx64.efi /srv/tftp/
+sudo cp /mnt/boot/grub/fonts/unicode.pf2 /srv/tftp/grub/font.pf2
 # sudo cp /mnt/boot/grub/grub.cfg /srv/tftp/boot/grub - disabled because we'll make our own later
-sudo cp /mnt/boot/grub/x86_64-efi/{command.lst,crypto.lst,fs.lst,terminal.lst} /srv/tftp/boot/grub/x86_64-efi
+sudo cp /mnt/boot/grub/x86_64-efi/{command.lst,crypto.lst,fs.lst,terminal.lst} /srv/tftp/grub/x86_64-efi
 
 sudo mv $UBUNTUSERVER /var/www/ubuntu/jammy/server
 sudo umount /mnt
 
-sudo cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/boot/syslinux/bios
-sudo cp /usr/lib/syslinux/modules/bios/libutil.c32 /srv/tftp/boot/syslinux/bios
-sudo cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftp/boot/syslinux/bios
-sudo cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftp/boot/syslinux/bios
+sudo cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/
+sudo cp /usr/lib/syslinux/modules/bios/libutil.c32 /srv/tftp/
+sudo cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftp/
+sudo cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftp/
 
 # sudo cp /usr/lib/syslinux/modules/efi64/{ldlinux.e64,libutil.c32,menu.c32} /srv/tftp
 # sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp
@@ -93,7 +95,7 @@ sudo cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp
 echo "Make the pxelinux.cfg directory and set up default file structure..."
 sudo mkdir -p /srv/tftp/pxelinux.cfg
 cd $STARTINGDIR
-echo "UI boot/syslinux/bios/menu.c32" > default
+echo "UI menu.c32" > default
 # echo "LABEL Ubuntu Jammy 22.04 Desktop" >> default
 # echo "	MENU LABEL Ubuntu Desktop" >> default
 # echo "	KERNEL ubuntu/jammy/desktop/vmlinuz" >> default
@@ -156,7 +158,7 @@ echo "        linux   ubuntu/jammy/server/vmlinuz ip=dhcp cloud-config-url=/dev/
 echo "        initrd  ubuntu/jammy/server/initrd" >> grub.cfg
 echo "}" >> grub.cfg
 # copy the grub.conf to the correct directory
-sudo cp $STARTINGDIR/grub.cfg /srv/tftp/boot/grub/grub.cfg
+sudo cp $STARTINGDIR/grub.cfg /srv/tftp/grub/grub.cfg
 
 # set up user-data file
 echo "#cloud-config" > user-data
