@@ -75,7 +75,8 @@ sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/server
 sudo cp /mnt/EFI/boot/bootx64.efi /srv/tftp/
 sudo cp /mnt/EFI/boot/grubx64.efi /srv/tftp/
 sudo cp /mnt/boot/grub/fonts/unicode.pf2 /srv/tftp/grub/font.pf2
-# sudo cp /mnt/boot/grub/grub.cfg /srv/tftp/boot/grub - disabled because we'll make our own later
+cp /mnt/boot/grub/grub.cfg $CODEDIR
+chmod +w $CODEDIR/grub.cfg
 sudo cp /mnt/boot/grub/x86_64-efi/{command.lst,crypto.lst,fs.lst,terminal.lst} /srv/tftp/grub/x86_64-efi
 
 sudo mv $UBUNTUSERVER /var/www/ubuntu/jammy/server
@@ -142,13 +143,7 @@ echo "	ENDTEXT" >> default
 
 sudo cp $STARTINGDIR/default /srv/tftp/pxelinux.cfg/default
 
-# Set up a simple grub.cfg right now just for Ubuntu Server installs
-echo "set timeout=30" > grub.cfg
-
-echo "loadfont unicode" >> grub.cfg
-
-echo "set menu_color_normal=white/black" >> grub.cfg
-echo "set menu_color_highlight=black/light-gray" >> grub.cfg
+# Add to grub.cfg right now just for Ubuntu Server installs
 
 echo "menuentry \"Install Ubuntu Jammy (22.04)\" {" >> grub.cfg
 echo "        set gfxpayload=keep" >> grub.cfg
