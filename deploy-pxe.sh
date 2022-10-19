@@ -26,6 +26,7 @@
 
 
 STARTINGDIR=$(pwd)
+CODEDIR=$STARTINGDIR
 HOSTNAME=$(cat /etc/hostname)
 UBUNTUDESKTOP=ubuntu-22.04.1-desktop-amd64.iso
 UBUNTUSERVER=ubuntu-22.04.1-live-server-amd64.iso
@@ -52,6 +53,7 @@ sudo chown -R tftp:tftp /srv/tftp
 # make the distribution directories
 echo "Make directories to hold Ubuntu server/desktop, and Xubuntu desktop"
 sudo mkdir -p /srv/tftp/ubuntu/jammy/{server,desktop}
+sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
 
 # sudo mkdir -p /srv/tftp/xubuntu/jammy/desktop
 # sudo mkdir -p /srv/tftp/kubuntu/jammy/desktop
@@ -218,7 +220,7 @@ sudo cp {user-data,meta-data} /var/www/ubuntu/jammy/server
 # Disable the old apache config file and use the pxe-server.conf file
 sudo a2dissite 000-default.conf
 sudo systemctl restart apache2
-sudo cp $STARTINGDIR/pxe-server.conf /etc/apache/sites-available
+sudo cp $CODEDIR/pxe-server.conf /etc/apache2/sites-available
 sudo a2ensite pxe-server.conf
 sudo systemctl restart apache2
 
