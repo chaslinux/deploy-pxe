@@ -43,9 +43,12 @@ sudo apt update && sudo apt upgrade -y
 echo "Installing syslinux-common, syslinux-efi, tftpd-hpa, pxelinux, and apache2..."
 sudo apt install syslinux-common syslinux-efi tftpd-hpa pxelinux apache2 -y
 
+
 echo "Copying syslinux and pxelinux files into the appropriate directories..."
 cd /srv/tftp
-sudo mkdir -p /srv/tftp/grub/x86_64-efi
+sudo mkdir -p /srv/tftp/grub/{x86_64-efi,x86_32-efi}
+sudo cp /usr/lib/SYSLINUX.EFI/efi32/syslinux.efi /srv/tftp/grub/x86_32-efi
+sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp/grub/x86_64-efi
 sudo mkdir -p /srv/tftp/boot/syslinux/bios
 sudo chown -R tftp:tftp /srv/tftp
 
@@ -72,12 +75,12 @@ wget https://releases.ubuntu.com/22.04.1/$UBUNTUSERVER
 echo "Mounting Ubuntu Server image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
 sudo mount $UBUNTUSERVER /mnt
 sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/server
-sudo cp /mnt/EFI/boot/bootx64.efi /srv/tftp/
-sudo cp /mnt/EFI/boot/grubx64.efi /srv/tftp/
-sudo cp /mnt/boot/grub/fonts/unicode.pf2 /srv/tftp/grub/font.pf2
-cp /mnt/boot/grub/grub.cfg $CODEDIR
-chmod +w $CODEDIR/grub.cfg
-sudo cp /mnt/boot/grub/x86_64-efi/{command.lst,crypto.lst,fs.lst,terminal.lst} /srv/tftp/grub/x86_64-efi
+#sudo cp /mnt/EFI/boot/bootx64.efi /srv/tftp/
+#sudo cp /mnt/EFI/boot/grubx64.efi /srv/tftp/
+#sudo cp /mnt/boot/grub/fonts/unicode.pf2 /srv/tftp/grub/font.pf2
+#cp /mnt/boot/grub/grub.cfg $CODEDIR
+#chmod +w $CODEDIR/grub.cfg
+#sudo cp /mnt/boot/grub/x86_64-efi/{command.lst,crypto.lst,fs.lst,terminal.lst} /srv/tftp/grub/x86_64-efi
 
 sudo mv $UBUNTUSERVER /var/www/ubuntu/jammy/server
 sudo umount /mnt
