@@ -13,8 +13,8 @@
 # notes for pfsense: 
 # 	add the IP address for tftp server in the Next Server field
 #		Default BIOS filename: pxelinux.0
-# 	
-#		UEFI 64 bit filename: boot/bootx64.efi
+# 		UEFI 32 bit filename: x86_32-efi/syslinux.efi
+#		UEFI 64 bit filename: x86_64-efi/syslinux.efi
 
 # Note: I am not a programmer, nor a server admin. I just wrote this script to automate
 # deployment of a simple PXE server.
@@ -46,9 +46,9 @@ sudo apt install syslinux-common syslinux-efi tftpd-hpa pxelinux apache2 -y
 
 echo "Copying syslinux and pxelinux files into the appropriate directories..."
 cd /srv/tftp
-sudo mkdir -p /srv/tftp/grub/{x86_64-efi,x86_32-efi}
-sudo cp /usr/lib/SYSLINUX.EFI/efi32/syslinux.efi /srv/tftp/grub/x86_32-efi
-sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp/grub/x86_64-efi
+sudo mkdir -p /srv/tftp/{x86_64-efi,x86_32-efi}
+sudo cp /usr/lib/SYSLINUX.EFI/efi32/syslinux.efi /srv/tftp/x86_32-efi
+sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp/x86_64-efi
 sudo mkdir -p /srv/tftp/boot/syslinux/bios
 sudo chown -R tftp:tftp /srv/tftp
 
@@ -89,6 +89,9 @@ sudo cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/
 sudo cp /usr/lib/syslinux/modules/bios/libutil.c32 /srv/tftp/
 sudo cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftp/
 sudo cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftp/
+sudo cp /usr/lib/syslinux/modules/efi32/ldlinux.e32 /srv/tftp/x86_32-efi
+sudo cp /usr/lib/syslinux/modules/efi64/ldlinux.e64 /srv/tftp/x86_64-efi
+
 
 # sudo cp /usr/lib/syslinux/modules/efi64/{ldlinux.e64,libutil.c32,menu.c32} /srv/tftp
 # sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp
