@@ -56,8 +56,8 @@ sudo chown -R tftp:tftp /srv/tftp
 echo "Make directories to hold Ubuntu server/desktop, and Xubuntu desktop"
 sudo mkdir -p /srv/tftp/ubuntu/jammy/{server,desktop}
 sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
+sudo mkdir -p /srv/tftp/xubuntu/jammy/desktop
 
-# sudo mkdir -p /srv/tftp/xubuntu/jammy/desktop
 # sudo mkdir -p /srv/tftp/kubuntu/jammy/desktop
 # sudo mkdir -p /srv/tftp/lubuntu/jammy/desktop
 # sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
@@ -120,14 +120,15 @@ echo "	TEXT HELP" >> default
 echo "		The Ubuntu 22.04 Server Live Image" >> default
 echo "	ENDTEXT" >> default
 
-# echo "LABEL Xubuntu Jammy 22.04 Desktop" >> default
-# echo "	MENU LABEL Xubuntu Desktop" >> default
-# echo "	KERNEL xubuntu/jammy/desktop/vmlinuz" >> default
-# echo "	INITRD xubuntu/jammy/desktop/initrd" >> default
+echo "LABEL Xubuntu Jammy 22.04 Desktop" >> default
+echo "	MENU LABEL Xubuntu Desktop" >> default
+echo "	KERNEL xubuntu/jammy/desktop/vmlinuz" >> default
+echo "	INITRD xubuntu/jammy/desktop/initrd" >> default
 # echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/xubuntu/jammy/desktop/$XUBUNTU" >> default
-# echo "	TEXT HELP" >> default
-# echo "		The Xubuntu 22.04 Desktop Live Image" >> default
-# echo "	ENDTEXT" >> default
+echo "  APPEND ip=dhcp cloud-config-url=/dev/null url=http://$HOSTNAME/xubuntu/jammy/desktop/xubuntu-22.04.1-live-amd64.iso autoinstall ds=nocloud-net;s=http://$HOSTNAME/xubuntu/jammy/desktop/" >> default
+echo "	TEXT HELP" >> default
+echo "		The Xubuntu 22.04 Desktop Live Image" >> default
+echo "	ENDTEXT" >> default
 
 # echo "LABEL Kubuntu Jammy 22.04 Desktop" >> default
 # echo "	MENU LABEL Kubuntu Desktop" >> default
@@ -185,16 +186,17 @@ sudo cp {user-data,meta-data} /var/www/ubuntu/jammy/server
 # sudo mv $UBUNTUDESKTOP /var/www/ubuntu/jammy/desktop
 # sudo umount /mnt
 
-# get Xubuntu (desktop) - note Canadian mirror
-# echo "Downloading the Xubuntu 22.04 desktop image from Canada, eh..."
-# wget http://mirror.csclub.uwaterloo.ca/xubuntu-releases/22.04/release/$XUBUNTU
+get Xubuntu (desktop) - note Canadian mirror
+echo "Downloading the Xubuntu 22.04 desktop image from Canada, eh..."
+wget http://mirror.csclub.uwaterloo.ca/xubuntu-releases/22.04/release/$XUBUNTU
 
-# set up the Xubuntu directory structure
-# echo "Mounting Xubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-# sudo mount $XUBUNTU /mnt
-# sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/xubuntu/jammy/desktop
-# sudo mv $XUBUNTU /var/www/xubuntu/jammy/desktop
-# sudo umount /mnt
+set up the Xubuntu directory structure
+echo "Mounting Xubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
+sudo mount $XUBUNTU /mnt
+sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/xubuntu/jammy/desktop
+sudo mv $XUBUNTU /var/www/xubuntu/jammy/desktop
+sudo mv $STARTINGDIR/desktop-user-data /var/www/xubuntu/jammy/desktop
+sudo umount /mnt
 
 # get Kubuntu (desktop) 
 # echo "Downloading Kubuntu 22.04 Desktop image"
