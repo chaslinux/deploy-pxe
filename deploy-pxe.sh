@@ -28,6 +28,7 @@
 STARTINGDIR=$(pwd)
 CODEDIR=$STARTINGDIR
 HOSTNAME=$(cat /etc/hostname)
+IPADDR=$(hostname -I)
 UBUNTUDESKTOP=ubuntu-22.04.1-desktop-amd64.iso
 UBUNTUSERVER=ubuntu-22.04.1-live-server-amd64.iso
 XUBUNTU=xubuntu-22.04.1-desktop-amd64.iso
@@ -120,7 +121,7 @@ echo "LABEL Xubuntu Jammy 22.04 Desktop" >> default
 echo "	MENU LABEL Xubuntu Desktop" >> default
 echo "	KERNEL xubuntu/jammy/desktop/vmlinuz" >> default
 echo "	INITRD xubuntu/jammy/desktop/initrd" >> default
-echo "	APPEND ip=dhcp netboot=nfs nfsroot=$HOSTNAME:/srv/tftp/xubuntu/jammy/desktop/ boot=casper auto=true url=http://$HOSTNAME/xubuntu/jammy/desktop/local-sources.seed root=/dev/ram0 maybe-ubiquity" >> default
+echo "	APPEND ip=dhcp netboot=nfs nfsroot=$IPADDR:/srv/tftp/xubuntu/jammy/desktop/ boot=casper auto=true url=http://$IPADDR/srv/tftp/xubuntu/jammy/desktop/local-sources.seed root=/dev/ram0 maybe-ubiquity" >> default
 # echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/xubuntu/jammy/desktop/$XUBUNTU" >> default
 #echo "  APPEND ip=dhcp cloud-config-url=/dev/null url=http://$HOSTNAME/xubuntu/jammy/desktop/$XUBUNTU autoinstall ds=nocloud-net;s=http://$HOSTNAME/xubuntu/jammy/desktop/" >> default
 echo "	TEXT HELP" >> default
@@ -192,9 +193,9 @@ if [ ! -f /var/www/xubuntu/desktop/$XUBUNTU ]
 		echo "Mounting Xubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
 		sudo mount $XUBUNTU /mnt
 		sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/xubuntu/jammy/desktop
-		sudo cp -a /mnt/. /var/www/xubuntu/jammy/desktop
-		sudo cp -rf /mnt/* /var/www/xubuntu/jammy/desktop
-		sudo mv $STARTINGDIR/local-sources.seed /var/www/xubuntu/jammy/desktop
+		sudo cp -a /mnt/. /srv/tftp/xubuntu/jammy/desktop
+		sudo cp -rf /mnt/* /srv/tftp/xubuntu/jammy/desktop
+		sudo mv $STARTINGDIR/local-sources.seed /srv/tftp/xubuntu/jammy/desktop
 		sudo umount /mnt
 fi
 
