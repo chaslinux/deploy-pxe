@@ -66,24 +66,26 @@ sudo mkdir -p /srv/tftp/xubuntu/jammy/desktop
 # sudo mkdir -p /var/www/lubuntu/jammy/desktop
 
 # change to the current user home directory
-echo "Downloading Ubuntu Server 22.04..."
-cd ~
-wget https://releases.ubuntu.com/22.04.1/$UBUNTUSERVER
 
-
-# set up Ubuntu server software directory structure
-echo "Mounting Ubuntu Server image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount $UBUNTUSERVER /mnt
-sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/server
-#sudo cp /mnt/EFI/boot/bootx64.efi /srv/tftp/
-#sudo cp /mnt/EFI/boot/grubx64.efi /srv/tftp/
-#sudo cp /mnt/boot/grub/fonts/unicode.pf2 /srv/tftp/grub/font.pf2
-#cp /mnt/boot/grub/grub.cfg $CODEDIR
-#chmod +w $CODEDIR/grub.cfg
-#sudo cp /mnt/boot/grub/x86_64-efi/{command.lst,crypto.lst,fs.lst,terminal.lst} /srv/tftp/grub/x86_64-efi
-
-sudo mv $UBUNTUSERVER /var/www/ubuntu/jammy/server
-sudo umount /mnt
+# Only download Ubuntu Server if it doesn't already exist as an ISO in /var/www/ubuntu/server
+if [ ! -f /var/www/ubuntu/jammy/server/$UBUNTUSERVER ]
+	then
+		echo "Downloading Ubuntu Server 22.04..."
+		cd ~
+		wget https://releases.ubuntu.com/22.04.1/$UBUNTUSERVER
+		# set up Ubuntu server software directory structure
+		echo "Mounting Ubuntu Server image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
+		sudo mount $UBUNTUSERVER /mnt
+		sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/server
+		#sudo cp /mnt/EFI/boot/bootx64.efi /srv/tftp/
+		#sudo cp /mnt/EFI/boot/grubx64.efi /srv/tftp/
+		#sudo cp /mnt/boot/grub/fonts/unicode.pf2 /srv/tftp/grub/font.pf2
+		#cp /mnt/boot/grub/grub.cfg $CODEDIR
+		#chmod +w $CODEDIR/grub.cfg
+		#sudo cp /mnt/boot/grub/x86_64-efi/{command.lst,crypto.lst,fs.lst,terminal.lst} /srv/tftp/grub/x86_64-efi
+		sudo mv $UBUNTUSERVER /var/www/ubuntu/jammy/server
+		sudo umount /mnt
+fi
 
 sudo cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/
 sudo cp /usr/lib/syslinux/modules/bios/libutil.c32 /srv/tftp/
@@ -125,7 +127,7 @@ echo "	MENU LABEL Xubuntu Desktop" >> default
 echo "	KERNEL xubuntu/jammy/desktop/vmlinuz" >> default
 echo "	INITRD xubuntu/jammy/desktop/initrd" >> default
 # echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/xubuntu/jammy/desktop/$XUBUNTU" >> default
-echo "  APPEND ip=dhcp cloud-config-url=/dev/null url=http://$HOSTNAME/xubuntu/jammy/desktop/xubuntu-22.04.1-live-amd64.iso autoinstall ds=nocloud-net;s=http://$HOSTNAME/xubuntu/jammy/desktop/" >> default
+echo "  APPEND ip=dhcp cloud-config-url=/dev/null url=http://$HOSTNAME/xubuntu/jammy/desktop/$XUBUNTU autoinstall ds=nocloud-net;s=http://$HOSTNAME/xubuntu/jammy/desktop/" >> default
 echo "	TEXT HELP" >> default
 echo "		The Xubuntu 22.04 Desktop Live Image" >> default
 echo "	ENDTEXT" >> default
@@ -186,17 +188,19 @@ sudo cp {user-data,meta-data} /var/www/ubuntu/jammy/server
 # sudo mv $UBUNTUDESKTOP /var/www/ubuntu/jammy/desktop
 # sudo umount /mnt
 
-get Xubuntu (desktop) - note Canadian mirror
-echo "Downloading the Xubuntu 22.04 desktop image from Canada, eh..."
-wget http://mirror.csclub.uwaterloo.ca/xubuntu-releases/22.04/release/$XUBUNTU
-
-set up the Xubuntu directory structure
-echo "Mounting Xubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
-sudo mount $XUBUNTU /mnt
-sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/xubuntu/jammy/desktop
-sudo mv $XUBUNTU /var/www/xubuntu/jammy/desktop
-sudo mv $STARTINGDIR/desktop-user-data /var/www/xubuntu/jammy/desktop
-sudo umount /mnt
+# get Xubuntu (desktop) - note Canadian mirror
+if [ ! -f /var/www/xubuntu/desktop/$XUBUNTU ]
+	then
+		echo "Downloading the Xubuntu 22.04 desktop image from Canada, eh..."
+		wget http://mirror.csclub.uwaterloo.ca/xubuntu-releases/22.04/release/$XUBUNTU
+		set up the Xubuntu directory structure
+		echo "Mounting Xubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
+		sudo mount $XUBUNTU /mnt
+		sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/xubuntu/jammy/desktop
+		sudo mv $XUBUNTU /var/www/xubuntu/jammy/desktop
+		sudo mv $STARTINGDIR/desktop-user-data /var/www/xubuntu/jammy/desktop
+		sudo umount /mnt
+fi
 
 # get Kubuntu (desktop) 
 # echo "Downloading Kubuntu 22.04 Desktop image"
