@@ -61,7 +61,7 @@ sudo mkdir -p /srv/tftp/xubuntu/jammy/desktop
 # sudo mkdir -p /srv/tftp/kubuntu/jammy/desktop
 # sudo mkdir -p /srv/tftp/lubuntu/jammy/desktop
 # sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
-# sudo mkdir -p /var/www/xubuntu/jammy/desktop
+sudo mkdir -p /var/www/xubuntu/jammy/desktop
 # sudo mkdir -p /var/www/kubuntu/jammy/desktop
 # sudo mkdir -p /var/www/lubuntu/jammy/desktop
 
