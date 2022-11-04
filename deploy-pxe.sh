@@ -153,14 +153,13 @@ echo "	ENDTEXT" >> default
 sudo cp $STARTINGDIR/default /srv/tftp/pxelinux.cfg/default
 
 # Add to grub.cfg right now just for Ubuntu Server installs
-
-echo "menuentry \"Install Ubuntu Jammy (22.04)\" {" >> grub.cfg
-echo "        set gfxpayload=keep" >> grub.cfg
-echo "        linux   ubuntu/jammy/server/vmlinuz ip=dhcp cloud-config-url=/dev/null url=http://$HOSTNAME/ubuntu/jammy/server/ubuntu-22.04.1-live-server-amd64.iso autoinstall ds=\"nocloud-net;s=http://$HOSTNAME/ubuntu/jammy/server\"" >> grub.cfg
-echo "        initrd  ubuntu/jammy/server/initrd" >> grub.cfg
-echo "}" >> grub.cfg
+# echo "menuentry \"Install Ubuntu Jammy (22.04)\" {" >> grub.cfg
+# echo "        set gfxpayload=keep" >> grub.cfg
+# echo "        linux   ubuntu/jammy/server/vmlinuz ip=dhcp cloud-config-url=/dev/null url=http://$HOSTNAME/ubuntu/jammy/server/ubuntu-22.04.1-live-server-amd64.iso autoinstall ds=\"nocloud-net;s=http://$HOSTNAME/ubuntu/jammy/server\"" >> grub.cfg
+# echo "        initrd  ubuntu/jammy/server/initrd" >> grub.cfg
+# echo "}" >> grub.cfg
 # copy the grub.conf to the correct directory
-sudo cp $STARTINGDIR/grub.cfg /srv/tftp/grub/grub.cfg
+# sudo cp $STARTINGDIR/grub.cfg /srv/tftp/grub/grub.cfg
 
 # set up user-data file
 echo "#cloud-config" > user-data
@@ -191,6 +190,7 @@ sudo cp {user-data,meta-data} /var/www/ubuntu/jammy/server
 # get Xubuntu (desktop) - note Canadian mirror
 if [ ! -f /var/www/xubuntu/desktop/$XUBUNTU ]
 	then
+		cd ~
 		echo "Downloading the Xubuntu 22.04 desktop image from Canada, eh..."
 		wget http://mirror.csclub.uwaterloo.ca/xubuntu-releases/22.04/release/$XUBUNTU
 		set up the Xubuntu directory structure
