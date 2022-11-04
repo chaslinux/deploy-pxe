@@ -41,31 +41,36 @@ sudo apt update && sudo apt upgrade -y
 # We don't install a DHCP server since we're using our router
 # for dhcp
 echo "Installing syslinux-common, syslinux-efi, tftpd-hpa, pxelinux, and apache2..."
-sudo apt install syslinux-common syslinux-efi tftpd-hpa pxelinux apache2 -y
+sudo apt install syslinux-common syslinux-efi tftpd-hpa pxelinux apache2 nfs-kernel-server -y
 
+# Copy the exports settings file from the display-pxe folder to /etc/exports
+sudo cp $STARTINGDIR/exports /etc/exports
+sudo exportfs -a
 
-echo "Copying syslinux and pxelinux files into the appropriate directories..."
 cd /srv/tftp
 sudo mkdir -p /srv/tftp/{x86_64-efi,x86_32-efi}
+
+echo "Copying syslinux and pxelinux files into the appropriate directories..."
 sudo cp /usr/lib/SYSLINUX.EFI/efi32/syslinux.efi /srv/tftp/x86_32-efi
 sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp/x86_64-efi
 sudo mkdir -p /srv/tftp/boot/syslinux/bios
 sudo chown -R tftp:tftp /srv/tftp
+sudo cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/
+sudo cp /usr/lib/syslinux/modules/bios/libutil.c32 /srv/tftp/
+sudo cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftp/
+sudo cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftp/
+sudo cp /usr/lib/syslinux/modules/efi32/ldlinux.e32 /srv/tftp/x86_32-efi
+sudo cp /usr/lib/syslinux/modules/efi64/ldlinux.e64 /srv/tftp/x86_64-efi
+# sudo cp /usr/lib/syslinux/modules/efi64/{ldlinux.e64,libutil.c32,menu.c32} /srv/tftp
+# sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp
+sudo cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp
 
 # make the distribution directories
 echo "Make directories to hold Ubuntu server/desktop, and Xubuntu desktop"
 sudo mkdir -p /srv/tftp/ubuntu/jammy/{server,desktop}
 sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
 sudo mkdir -p /srv/tftp/xubuntu/jammy/desktop
-
-# sudo mkdir -p /srv/tftp/kubuntu/jammy/desktop
-# sudo mkdir -p /srv/tftp/lubuntu/jammy/desktop
-# sudo mkdir -p /var/www/ubuntu/jammy/{server,desktop}
 sudo mkdir -p /var/www/xubuntu/jammy/desktop
-# sudo mkdir -p /var/www/kubuntu/jammy/desktop
-# sudo mkdir -p /var/www/lubuntu/jammy/desktop
-
-# change to the current user home directory
 
 # Only download Ubuntu Server if it doesn't already exist as an ISO in /var/www/ubuntu/server
 if [ ! -f /var/www/ubuntu/jammy/server/$UBUNTUSERVER ]
@@ -87,17 +92,6 @@ if [ ! -f /var/www/ubuntu/jammy/server/$UBUNTUSERVER ]
 		sudo umount /mnt
 fi
 
-sudo cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp/
-sudo cp /usr/lib/syslinux/modules/bios/libutil.c32 /srv/tftp/
-sudo cp /usr/lib/syslinux/modules/bios/menu.c32 /srv/tftp/
-sudo cp /usr/lib/syslinux/modules/bios/vesamenu.c32 /srv/tftp/
-sudo cp /usr/lib/syslinux/modules/efi32/ldlinux.e32 /srv/tftp/x86_32-efi
-sudo cp /usr/lib/syslinux/modules/efi64/ldlinux.e64 /srv/tftp/x86_64-efi
-
-
-# sudo cp /usr/lib/syslinux/modules/efi64/{ldlinux.e64,libutil.c32,menu.c32} /srv/tftp
-# sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp
-sudo cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp
 
 echo "Make the pxelinux.cfg directory and set up default file structure..."
 sudo mkdir -p /srv/tftp/pxelinux.cfg
@@ -126,8 +120,9 @@ echo "LABEL Xubuntu Jammy 22.04 Desktop" >> default
 echo "	MENU LABEL Xubuntu Desktop" >> default
 echo "	KERNEL xubuntu/jammy/desktop/vmlinuz" >> default
 echo "	INITRD xubuntu/jammy/desktop/initrd" >> default
+echo "	APPEND ip=dhcp netboot=nfs nfsroot=$HOSTNAME:/srv/tftp/xubuntu/jammy/desktop/ boot=casper auto=true url=http://$HOSTNAME/xubuntu/jammy/desktop/local-sources.seed root=/dev/ram0 maybe-ubiquity" >> default
 # echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/xubuntu/jammy/desktop/$XUBUNTU" >> default
-echo "  APPEND ip=dhcp cloud-config-url=/dev/null url=http://$HOSTNAME/xubuntu/jammy/desktop/$XUBUNTU autoinstall ds=nocloud-net;s=http://$HOSTNAME/xubuntu/jammy/desktop/" >> default
+#echo "  APPEND ip=dhcp cloud-config-url=/dev/null url=http://$HOSTNAME/xubuntu/jammy/desktop/$XUBUNTU autoinstall ds=nocloud-net;s=http://$HOSTNAME/xubuntu/jammy/desktop/" >> default
 echo "	TEXT HELP" >> default
 echo "		The Xubuntu 22.04 Desktop Live Image" >> default
 echo "	ENDTEXT" >> default
@@ -197,8 +192,9 @@ if [ ! -f /var/www/xubuntu/desktop/$XUBUNTU ]
 		echo "Mounting Xubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
 		sudo mount $XUBUNTU /mnt
 		sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/xubuntu/jammy/desktop
-		sudo mv $XUBUNTU /var/www/xubuntu/jammy/desktop
-		sudo mv $STARTINGDIR/desktop-user-data /var/www/xubuntu/jammy/desktop
+		sudo cp -a /mnt/. /var/www/xubuntu/jammy/desktop
+		sudo cp -rf /mnt/* /var/www/xubuntu/jammy/desktop
+		sudo mv $STARTINGDIR/local-sources.seed /var/www/xubuntu/jammy/desktop
 		sudo umount /mnt
 fi
 
