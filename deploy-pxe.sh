@@ -28,7 +28,8 @@
 STARTINGDIR=$(pwd)
 CODEDIR=$STARTINGDIR
 HOSTNAME=$(cat /etc/hostname)
-IPADDR=$(hostname -I)
+IPADDRS=$(hostname -I)
+IPADDR=$(echo $IPADDRS | sed 's/%20//')
 UBUNTUDESKTOP=ubuntu-22.04.1-desktop-amd64.iso
 UBUNTUSERVER=ubuntu-22.04.1-live-server-amd64.iso
 XUBUNTU=xubuntu-22.04.1-desktop-amd64.iso
