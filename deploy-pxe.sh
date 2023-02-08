@@ -34,7 +34,7 @@ KUBUNTU=kubuntu-22.04.1-desktop-amd64.iso
 LUBUNTU=lubuntu-22.04.1-desktop-amd64.iso
 
 # in case /srv/tftp was deleted after tftpd-hpa was installed
-if [ ! -d /srv/tftp ]
+if [ ! -d "/srv/tftp" ]
 	then
 		sudo mkdir /srv/tftp
 fi
