@@ -36,7 +36,7 @@ LUBUNTU=lubuntu-22.04.1-desktop-amd64.iso
 # in case /srv/tftp was deleted after tftpd-hpa was installed
 if [ ! -d "/srv/tftp" ]
 	then
-		sudo mkdir /srv/tftp
+		sudo mkdir -p /srv/tftp/pxelinux.cfg
 fi
 
 echo "Updating the system before adding software..."
