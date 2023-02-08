@@ -33,6 +33,12 @@ XUBUNTU=xubuntu-22.04.1-desktop-amd64.iso
 KUBUNTU=kubuntu-22.04.1-desktop-amd64.iso
 LUBUNTU=lubuntu-22.04.1-desktop-amd64.iso
 
+# in case /srv/tftp was deleted after tftpd-hpa was installed
+if [ ! -d /srv/tftp ]
+	then
+		sudo mkdir /srv/tftp
+fi
+
 echo "Updating the system before adding software..."
 sudo apt update && sudo apt upgrade -y
 
