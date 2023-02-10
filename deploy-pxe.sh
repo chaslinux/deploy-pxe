@@ -48,6 +48,7 @@ echo "Copying syslinux and pxelinux files into the appropriate directories..."
 cd /srv/tftp
 sudo cp /usr/lib/syslinux/modules/efi64/{ldlinux.e64,libutil.c32,menu.c32} /srv/tftp
 sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp
+sudo cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp
 sudo cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp
 
 # make the distribution directories
