@@ -33,10 +33,19 @@ XUBUNTU=xubuntu-22.04.1-desktop-amd64.iso
 KUBUNTU=kubuntu-22.04.1-desktop-amd64.iso
 LUBUNTU=lubuntu-22.04.1-desktop-amd64.iso
 
+# Make the PXE directories for the tftp files
 sudo mkdir -p /srv/tftp/pxelinux.cfg
+sudo mkdir -p /srv/tftp/uefi
 
 echo "Updating the system before adding software..."
 sudo apt update && sudo apt upgrade -y
+
+# Install Apache for Live installation ISO deployment
+sudo apt install apache2 -y
+
+# make the apache directories to hole the ISOs
+sudo mkdir -p /var/www/html/ubuntu/jammy/{desktop,server}
+sudo mkdir -p /var/www/html/xubuntu/jammy/desktop
 
 # Install syslinux for non-UEFI and UEFI, plus tftpd
 # We don't install a DHCP server since we're using our router
@@ -46,10 +55,10 @@ sudo apt install syslinux-common syslinux-efi tftpd-hpa pxelinux
 
 echo "Copying syslinux and pxelinux files into the appropriate directories..."
 cd /srv/tftp
-sudo cp /usr/lib/syslinux/modules/efi64/{ldlinux.e64,libutil.c32,menu.c32} /srv/tftp
-sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp
-sudo cp /usr/lib/syslinux/modules/bios/ldlinux.c32 /srv/tftp
-sudo cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp
+sudo cp /usr/lib/syslinux/modules/efi64/{ldlinux.e64,libutil.c32,menu.c32} /srv/tftp/uefi
+sudo cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /srv/tftp/uefi
+sudo cp /usr/lib/syslinux/modules/bios/{ldlinux.c32,libutil.c32,menu.c32} /srv/tftp/
+sudo cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp/
 
 # make the distribution directories
 echo "Make directories to hold Ubuntu server/desktop, and Xubuntu desktop"
@@ -115,7 +124,7 @@ if [ ! -f /srv/tftp/ubuntu/jammy/desktop/$UBUNTUDESKTOP ]
 		echo "Mounting Ubuntu Desktop image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
 		sudo mount $UBUNTUDESKTOP /mnt
 		sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/desktop
-		sudo mv $UBUNTUDESKTOP /srv/tftp/ubuntu/jammy/desktop
+		sudo mv $UBUNTUDESKTOP /var/www/html/ubuntu/jammy/desktop
 		sudo umount /mnt
 fi
 
@@ -126,7 +135,7 @@ if [ ! -f /srv/tftp/ubuntu/jammy/server/$UBUNTUSERVER ]
 		echo "Mounting Ubuntu Server image, coping vmlinuz, initrd, and the ISO to the appropriate directories..."
 		sudo mount $UBUNTUSERVER /mnt
 		sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/ubuntu/jammy/server
-		sudo mv $UBUNTUSERVER /srv/tftp/ubuntu/jammy/server
+		sudo mv $UBUNTUSERVER /var/www/html/ubuntu/jammy/server
 		sudo umount /mnt
 fi
 
@@ -139,7 +148,7 @@ if [ ! -f /srv/tftp/xubuntu/jammy/desktop/$XUBUNTU ]
 		echo "Mounting Xubuntu image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
 		sudo mount $XUBUNTU /mnt
 		sudo cp /mnt/casper/{initrd,vmlinuz} /srv/tftp/xubuntu/jammy/desktop
-		sudo mv $XUBUNTU /srv/tftp/xubuntu/jammy/desktop
+		sudo mv $XUBUNTU /var/www/html/xubuntu/jammy/desktop
 		sudo umount /mnt
 fi
 
