@@ -32,6 +32,7 @@ UBUNTUSERVER=ubuntu-22.04.1-live-server-amd64.iso
 XUBUNTU=xubuntu-22.04.1-desktop-amd64.iso
 KUBUNTU=kubuntu-22.04.1-desktop-amd64.iso
 LUBUNTU=lubuntu-22.04.1-desktop-amd64.iso
+DEBIAN=debian-11.6.0-amd64-netinst.iso
 
 # Make the PXE directories for the tftp files
 sudo mkdir -p /srv/tftp/pxelinux.cfg
@@ -46,6 +47,7 @@ sudo apt install apache2 -y
 # make the apache directories to hole the ISOs
 sudo mkdir -p /var/www/html/ubuntu/jammy/{desktop,server}
 sudo mkdir -p /var/www/html/xubuntu/jammy/desktop
+sudo mkdir -p /var/www/html/debian/bullseye/netinstall
 
 # Install syslinux for non-UEFI and UEFI, plus tftpd
 # We don't install a DHCP server since we're using our router
@@ -64,6 +66,7 @@ sudo cp /usr/lib/PXELINUX/pxelinux.0 /srv/tftp/
 echo "Make directories to hold Ubuntu server/desktop, and Xubuntu desktop"
 sudo mkdir -p /srv/tftp/ubuntu/jammy/{server,desktop}
 sudo mkdir -p /srv/tftp/xubuntu/jammy/desktop
+sudo mkdir -p /srv/tftp/debian/bullseye/netinstall
 
 echo "Make the pxelinux.cfg directory and set up default file structure..."
 sudo mkdir -p /srv/tftp/pxelinux.cfg
@@ -96,6 +99,15 @@ echo "	TEXT HELP" >> default
 echo "		The Xubuntu 22.04 Desktop Live Image" >> default
 echo "	ENDTEXT" >> default
 
+echo "LABEL Debian Bullseye 11.6.0 Network Installer" >> default
+echo "	MENU LABEL Debian Netinstaller" >> default
+echo "	KERNEL debian/bullseye/netinstall/vmlinuz" >> default
+echo "	INITRD debian/bullseye/netinstall/initrd.gz" >> default
+echo "	APPEND root=/dev/ram0 ramdisk_size=1500000 ip=dhcp url=http://$HOSTNAME/debian/bullseye/netinstall/$DEBIAN" >> default
+echo "	TEXT HELP" >> default
+echo "		The Debian Network installer" >> default
+echo "	ENDTEXT" >> default
+
 # echo "LABEL Kubuntu Jammy 22.04 Desktop" >> default
 # echo "	MENU LABEL Kubuntu Desktop" >> default
 # echo "	KERNEL kubuntu/jammy/desktop/vmlinuz" >> default
@@ -119,6 +131,7 @@ sudo cp $STARTINGDIR/default /srv/tftp/pxelinux.cfg/default
 # get Ubuntu Desktop
 if [ ! -f /srv/tftp/ubuntu/jammy/desktop/$UBUNTUDESKTOP ]
 	then
+		cd ~
 		echo "Downloading Ubuntu 22.04 desktop..."
 		wget https://releases.ubuntu.com/22.04.1/$UBUNTUDESKTOP
 		echo "Mounting Ubuntu Desktop image, copying vmlinuz, initrd, and the ISO to the appropriate directories..."
@@ -128,8 +141,10 @@ if [ ! -f /srv/tftp/ubuntu/jammy/desktop/$UBUNTUDESKTOP ]
 		sudo umount /mnt
 fi
 
+# get Ubuntu Server
 if [ ! -f /srv/tftp/ubuntu/jammy/server/$UBUNTUSERVER ]
 	then
+		cd ~
 		echo "Downloading Ubuntu 22.04 server..."
 		wget https://releases.ubuntu.com/22.04.1/$UBUNTUSERVER
 		echo "Mounting Ubuntu Server image, coping vmlinuz, initrd, and the ISO to the appropriate directories..."
@@ -151,6 +166,20 @@ if [ ! -f /srv/tftp/xubuntu/jammy/desktop/$XUBUNTU ]
 		sudo mv $XUBUNTU /var/www/html/xubuntu/jammy/desktop
 		sudo umount /mnt
 fi
+
+# get Debian Netinstaller
+if [ ! -f /srv/tftp/debian/bullseye/netinstall/$DEBIAN ]
+	then
+		cd ~
+		echo "Downloading the Debian Bullseye Netinstaller..."
+		wget https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/$DEBIAN
+		echo "Mounting the Debian netinstaller, copying vmlinuz, initrd.gz, and the ISO to appropriate directories."
+		sudo mount $DEBIAN /mnt
+		sudo cp /mnt/install.amd/{vmlinuz,initrd.gz} /srv/tftp/debian/bullseye/netinstall
+		sudo mv $DEBIAN /var/www/html/debian/bullseye/netinstall
+		sudo umount /mnt
+fi
+
 
 # get Kubuntu (desktop) 
 # if [ ! -f /srv/tftp/kubuntu/jammy/desktop/$KUBUNTU ]
