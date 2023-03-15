@@ -1,0 +1,5 @@
+version: 1
+identity:
+    hostname: ubuntu
+    username: localadmin
+    password: $6$awKEIFeoySm1f/FN$iuY4CTXxOnmH7PyzDT375Y7S5rgT.ULZd5EMq7nw4A6703QoZitm4bN2sbGCESjous/7NW3MpgZjE71NUwZyi0
